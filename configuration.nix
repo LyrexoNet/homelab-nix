@@ -5,8 +5,43 @@
     ./hardware-configuration.nix
   ];
 
+  virtualisation.libvirtd = {
+    enable = true;
+    dbus.enable = true;
+  };
+
+  programs.virt-manager.enable = true;
+
+    environment.pathsToLink = [ "/share/cockpit" ];
+  services.dbus.packages = [ pkgs.libvirt-dbus ];
+
+  services.cockpit = {
+    enable = true;
+    openFirewall = true;
+    allowed-origins = [
+      "https://10.7.4.84:9090"
+      "https://localhost:9090"
+    ];
+    plugins = [
+      pkgs.cockpit-files
+      pkgs.cockpit-podman
+      pkgs.cockpit-machines
+    ];
+  };
+
+  virtualisation.libvirtd.qemu = {
+    runAsRoot = true;
+  };
+
   networking.hostName = "lyrix";
-  networking.networkmanager.enable = true;
+  networking.useDHCP = false;
+  networking.bridges.br0.interfaces = [ "enp3s0" ];
+  networking.interfaces.br0.ipv4.addresses = [{
+    address = "10.7.4.84";
+    prefixLength = 24;
+  }];
+  networking.defaultGateway = "10.7.4.1";
+  networking.nameservers = [ "10.7.4.1" ];
   hardware.enableRedistributableFirmware = true;
   networking.firewall.enable = false;
   networking.hostId = "d1ef2617";
@@ -21,7 +56,46 @@
       PermitRootLogin = "prohibit-password";
     };
   };
+  
+  services.samba = {
+    enable = true;
+    package = pkgs.samba4Full;
+    openFirewall = true;
 
+    settings = {
+      global = {
+        workgroup = "WORKGROUP";
+        "server string" = "Lyrix NAS";
+        "netbios name" = "LYRIX";
+        security = "user";
+        "map to guest" = "never";
+      };
+
+      storage = {
+        path = "/storage/storage";
+        browseable = "yes";
+        "read only" = "no";
+        "guest ok" = "no";
+        "valid users" = [ "lyrexo" ];
+        "create mask" = "0664";
+        "directory mask" = "0775";
+      };
+    };
+  };
+
+  services.samba-wsdd = {
+    enable = true;
+    openFirewall = true;
+  };
+
+  services.avahi = {
+    enable = true;
+    publish.enable = true;
+    publish.userServices = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
+  
   users.users.root.openssh.authorizedKeys.keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINdhT/HpmwhN1TkNdcU7njGkzr6qugERwDIX84Cl/43s atlas-1-to-lycore"
   ];
@@ -35,6 +109,10 @@
     vim
     pciutils
     usbutils
+    cockpit
+    cockpit-machines
+    libvirt-dbus
+    virt-manager
   ];
 
   boot.kernelPackages = pkgs.linuxPackages;
@@ -48,10 +126,15 @@
     fsType = "zfs";
     options = [ "nofail" ];
   };
+  
+  fileSystems."/storage/storage" = {
+    device = "pool/storage";
+    fsType = "zfs";
+  };
 
   users.users.lyrexo = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [ "wheel" "networkmanager" "libvirtd" ];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINdhT/HpmwhN1TkNdcU7njGkzr6qugERwDIX84Cl/43s atlas-1-to-lycore"
     ];
