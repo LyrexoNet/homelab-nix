@@ -36,6 +36,8 @@
   networking.hostName = "lyrix";
   networking.useDHCP = false;
   networking.bridges.br0.interfaces = [ "enp3s0" ];
+  networking.interfaces.enp3s0.useDHCP = false;
+  networking.interfaces.br0.macAddress = "00:e0:4d:03:0f:e4";
   networking.interfaces.br0.ipv4.addresses = [{
     address = "10.7.4.84";
     prefixLength = 24;
