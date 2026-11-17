@@ -21,6 +21,7 @@
     allowed-origins = [
       "https://10.7.4.84:9090"
       "https://localhost:9090"
+      "https://lyrix.lyrexo.net"
     ];
     plugins = [
       pkgs.cockpit-files
