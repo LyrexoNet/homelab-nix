@@ -14,7 +14,7 @@
 
     environment.pathsToLink = [ "/share/cockpit" ];
   services.dbus.packages = [ pkgs.libvirt-dbus ];
-
+  
   services.cockpit = {
     enable = true;
     openFirewall = true;
@@ -102,6 +102,7 @@
   users.users.root.openssh.authorizedKeys.keys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINdhT/HpmwhN1TkNdcU7njGkzr6qugERwDIX84Cl/43s atlas-1-to-lycore"
   ];
+
 
   environment.systemPackages = with pkgs; [
     git
