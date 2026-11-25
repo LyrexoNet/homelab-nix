@@ -9,6 +9,12 @@
     enable = true;
     dbus.enable = true;
   };
+  virtualisation.docker.enable = true;
+
+  services.navidrome = {
+    enable = true;
+    settings.Address = "0.0.0.0";
+  };
 
   programs.virt-manager.enable = true;
 
@@ -154,6 +160,7 @@
     cockpit-machines
     libvirt-dbus
     virt-manager
+    docker-compose
   ];
 
   boot.kernelPackages = pkgs.linuxPackages;

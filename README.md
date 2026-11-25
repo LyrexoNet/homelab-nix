@@ -78,6 +78,8 @@ for newly created content.
 - SSH public-key and password authentication
 - Root SSH password authentication
 - Forgejo at `https://git.lyrexo.net`
+- Docker
+- Navidrome listening on `0.0.0.0:4533`
 - Firewall disabled
 - Persistent ZFS host ID
 - Minimal, headless server environment
