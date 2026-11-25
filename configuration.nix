@@ -169,6 +169,9 @@
     libvirt-dbus
     virt-manager
     docker-compose
+    (python3.withPackages (ps: [
+      ps.libvirt
+    ]))
   ];
 
   boot.kernelPackages = pkgs.linuxPackages;
