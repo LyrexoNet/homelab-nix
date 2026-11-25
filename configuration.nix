@@ -177,7 +177,7 @@
 
   users.users.lyrexo = {
     isNormalUser = true;
-    extraGroups = [ "wheel" "networkmanager" "libvirtd" ];
+    extraGroups = [ "wheel" "networkmanager" "libvirtd" "docker" ];
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINdhT/HpmwhN1TkNdcU7njGkzr6qugERwDIX84Cl/43s atlas-1-to-lycore"
     ];
