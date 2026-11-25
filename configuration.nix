@@ -13,11 +13,16 @@
 
   services.navidrome = {
     enable = true;
+    environmentFile = "/etc/navidrome.env";
     settings = {
       Address = "0.0.0.0";
       MusicFolder = "/storage/storage/media/music/";
     };
   };
+
+  systemd.tmpfiles.rules = [
+    "f /etc/navidrome.env 0600 root root -"
+  ];
 
   programs.virt-manager.enable = true;
 

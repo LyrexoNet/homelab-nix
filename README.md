@@ -81,6 +81,7 @@ for newly created content.
 - Docker
 - Navidrome listening on `0.0.0.0:4533`, with library root at
   `/storage/storage/media/music/`
+- Navidrome Last.fm API key supplied through a root-only environment file
 - Firewall disabled
 - Persistent ZFS host ID
 - Minimal, headless server environment
@@ -90,6 +91,19 @@ Set the root password on the installed system with `passwd root` (or from
 recovery with `nixos-enter --root /mnt -c 'passwd root'`). Password changes
 persist across rebuilds. SSH password authentication is enabled for root and
 regular users; use a strong password and prefer SSH keys when possible.
+
+Set `ND_LASTFM_APIKEY` in the ignored local `.env` file (see `.env.example`).
+Navidrome reads this secret from `/etc/navidrome.env` on Lyrix; the NixOS
+configuration creates that file with root-only permissions. Copy the populated
+file to Lyrix securely before switching the configuration:
+
+```bash
+scp .env lyrexo@10.7.4.84:/tmp/navidrome.env
+ssh -t lyrexo@10.7.4.84 \
+  'sudo install -o root -g root -m 600 /tmp/navidrome.env /etc/navidrome.env && rm /tmp/navidrome.env'
+```
+
+The `.env` file is ignored by Git and must not be committed.
 
 ## Building
 
