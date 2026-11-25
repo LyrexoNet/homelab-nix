@@ -51,11 +51,22 @@ The 512 GB NVMe contains the NixOS installation:
 
 ### Secondary storage
 
-The 4 TB WD external HDD is a separate existing ZFS pool.
+The 4 TB external disk is formatted as Btrfs and mounted at `/storage/storage`
+using UUID `95a2ad85-67e6-446a-9635-ae1c6fbd8bc4`.
 
-It is intentionally excluded from `disko.nix` so reinstalling NixOS does not automatically repartition or format it.
+It is intentionally excluded from `disko.nix`, so reinstalling NixOS does not
+automatically repartition or format it.
 
-ZFS support is enabled in the system configuration. The pool is managed separately from the operating system installation.
+Forgejo uses the existing storage layout:
+
+- State and application data: `/storage/storage/git_storage/forgejo`
+- Git repositories: `/storage/storage/git_storage/forgejo/repositories`
+- Custom files: `/storage/storage/forgejo-app/custom`
+- Backups: `/storage/storage/forgejo-app/dump`
+
+At startup, a systemd service grants the Forgejo account read, write, and
+traverse access to existing files on the mounted volume and default ACL access
+for newly created content.
 
 ## Configuration features
 
@@ -64,12 +75,18 @@ ZFS support is enabled in the system configuration. The pool is managed separate
 - systemd-boot
 - NetworkManager
 - OpenSSH
-- SSH public-key authentication
+- SSH public-key and password authentication
+- Root SSH password authentication
+- Forgejo at `https://git.lyrexo.net`
 - Firewall disabled
-- ZFS filesystem support
 - Persistent ZFS host ID
 - Minimal, headless server environment
 - `lyrexo` administrator account with sudo
+
+Set the root password on the installed system with `passwd root` (or from
+recovery with `nixos-enter --root /mnt -c 'passwd root'`). Password changes
+persist across rebuilds. SSH password authentication is enabled for root and
+regular users; use a strong password and prefer SSH keys when possible.
 
 ## Building
 

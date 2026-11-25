@@ -59,6 +59,42 @@
       PermitRootLogin = "yes";
     };
   };
+
+  services.forgejo = {
+    enable = true;
+    stateDir = "/storage/storage/git_storage/forgejo";
+    customDir = "/storage/storage/forgejo-app/custom";
+    repositoryRoot = "/storage/storage/git_storage/forgejo/repositories";
+    dump.backupDir = "/storage/storage/forgejo-app/dump";
+    settings = {
+      server = {
+        APP_DATA_PATH = "/storage/storage/git_storage/forgejo/data";
+        DOMAIN = "git.lyrexo.net";
+        ROOT_URL = "https://git.lyrexo.net/";
+      };
+    };
+  };
+
+  systemd.services.forgejo-storage-permissions = {
+    description = "Grant Forgejo access to the storage volume";
+    unitConfig.RequiresMountsFor = "/storage/storage";
+    before = [ "forgejo.service" ];
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.acl pkgs.findutils ];
+    script = ''
+      setfacl -R -m u:forgejo:rwX /storage/storage
+      find /storage/storage -type d -exec setfacl -m d:u:forgejo:rwx {} +
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+  };
+
+  systemd.services.forgejo = {
+    requires = [ "forgejo-storage-permissions.service" ];
+    after = [ "forgejo-storage-permissions.service" ];
+  };
   
   services.samba = {
     enable = true;
@@ -103,6 +139,7 @@
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINdhT/HpmwhN1TkNdcU7njGkzr6qugERwDIX84Cl/43s atlas-1-to-lycore"
   ];
 
+  users.mutableUsers = true;
 
   environment.systemPackages = with pkgs; [
     git
@@ -122,18 +159,13 @@
   boot.kernelPackages = pkgs.linuxPackages;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  boot.supportedFilesystems = [ "zfs" ];
+  boot.supportedFilesystems = [ "zfs" "btrfs" ];
   boot.zfs.forceImportRoot = false;
   
-  fileSystems."/storage" = {
-    device = "pool"; # Or "pool/dataset" if mounting a child dataset
-    fsType = "zfs";
-    options = [ "nofail" ];
-  };
-  
   fileSystems."/storage/storage" = {
-    device = "pool/storage";
-    fsType = "zfs";
+    device = "/dev/disk/by-uuid/95a2ad85-67e6-446a-9635-ae1c6fbd8bc4";
+    fsType = "btrfs";
+    options = [ "nofail" ];
   };
 
   users.users.lyrexo = {

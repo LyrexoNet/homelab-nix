@@ -18,7 +18,6 @@
         disko.nixosModules.disko
         ./disko.nix
         ./configuration.nix
-        ./wireguard.nix
       ];
     };
   };
