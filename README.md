@@ -79,7 +79,8 @@ for newly created content.
 - Root SSH password authentication
 - Forgejo at `https://git.lyrexo.net`
 - Docker
-- Navidrome listening on `0.0.0.0:4533`
+- Navidrome listening on `0.0.0.0:4533`, with library root at
+  `/storage/storage/media/music/`
 - Firewall disabled
 - Persistent ZFS host ID
 - Minimal, headless server environment
