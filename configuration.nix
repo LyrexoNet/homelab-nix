@@ -196,4 +196,12 @@
   system.stateVersion = "26.05";
 
   nix.settings.trusted-users = [ "root" "lyrexo" ];
+
+  environment.variables = {
+    LIBVIRT_DEFAULT_URI = "qemu:///system";
+  };
+
+  security.polkit.enable = true;
+
 }
+
