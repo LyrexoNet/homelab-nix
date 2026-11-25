@@ -5,6 +5,25 @@
     ./hardware-configuration.nix
   ];
 
+  nixpkgs.overlays = [
+    (final: prev: {
+      cockpit-machines = prev.cockpit-machines.overrideAttrs (old: {
+        nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ prev.makeWrapper ];
+        postFixup = (old.postFixup or "") + ''
+          mkdir -p $out/bin
+          makeWrapper ${prev.python3.withPackages (ps: with ps; [ libvirt pygobject3 requests ])}/bin/python3 $out/bin/cockpit-machines-python \
+            --prefix PYTHONPATH : "${prev.virt-manager}/share/virt-manager"
+
+          for f in $out/share/cockpit/machines/*.js; do
+            sed -i -E "s#(/nix/store/[a-z0-9]+-python3-[^/\"']+/bin/python3|/usr/bin/python3|/usr/bin/env python3)#$out/bin/cockpit-machines-python#g" "$f"
+          done
+        '';
+      });
+    })
+  ];
+
+
+
   virtualisation.libvirtd = {
     enable = true;
     dbus.enable = true;
@@ -165,13 +184,9 @@
     pciutils
     usbutils
     cockpit
-    cockpit-machines
     libvirt-dbus
     virt-manager
     docker-compose
-    (python3.withPackages (ps: [
-      ps.libvirt
-    ]))
   ];
 
   boot.kernelPackages = pkgs.linuxPackages;
